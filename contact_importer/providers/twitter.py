@@ -52,6 +52,9 @@ class TwitterFollowers(OAuthContacts):
         return followers
 
     def send_direct_message(self, user, message):
+        if len(message) > 140:
+            raise Exception("The message is too long. Maximum length is 140 characters.")
+
         token = oauth.Token(self.access_token, self.access_token_secret)
         client = oauth.Client(self.consumer, token)
 
