@@ -10,11 +10,13 @@ from django.shortcuts import redirect
 from .providers.google import GmailContacts
 from .providers.yahoo import YahooContacts
 from .providers.hotmail import HotmailContacts
+from .providers.twitter import TwitterFollowers
 
 providers = {
     'google': GmailContacts,
     'yahoo': YahooContacts,
-    'hotmail': HotmailContacts
+    'hotmail': HotmailContacts,
+    'twitter': TwitterFollowers,
 }
 
 PROVIDER_CREDENTIALS = settings.CONTACT_IMPORT_SETTINGS
