@@ -15,33 +15,32 @@ class TwitterFollowers(OAuthContacts):
     send_direct_message_url = "https://api.twitter.com/1.1/direct_messages/new.json"
 
     def __init__(self, *args, **kwargs):
-        self.screen_name = None
+        self._screen_name = None
         super(TwitterFollowers, self).__init__(*args, **kwargs)
 
-    def get_user_screen_name(self):
-        if self.screen_name is None:
+    @property
+    def screen_name(self):
+        if self._screen_name is None:
             token = oauth.Token(self.access_token, self.access_token_secret)
             client = oauth.Client(self.consumer, token)
             resp, content = client.request(self.verify_credentials_url, "GET")
             if resp.get('status') == '200':
                 data = json.loads(content)
-                self.screen_name = data.get('screen_name')
+                self._screen_name = data.get('screen_name')
             else:
                 raise Exception("Cannot retrieve user screen name")
-        return self.screen_name
+        return self._screen_name
 
     def get_contacts(self):
         super(TwitterFollowers, self).get_contacts()
         token = oauth.Token(self.access_token, self.access_token_secret)
         client = oauth.Client(self.consumer, token)
 
-        screen_name = self.get_user_screen_name()
-
         followers = []
 
         next_cursor = -1
         while next_cursor != 0:
-            resp, content = client.request(self.get_followers_list_url % (screen_name, next_cursor), "GET")
+            resp, content = client.request(self.get_followers_list_url % (self.screen_name, next_cursor), "GET")
             if resp.get('status') == '200':
                 data = json.loads(content)
                 next_cursor = data['next_cursor']
@@ -62,7 +61,5 @@ class TwitterFollowers(OAuthContacts):
                   'text': message.encode('utf-8')}
         encoded_params = urllib.urlencode(params)
         resp, content = client.request("%s?%s" % (self.send_direct_message_url, encoded_params), "POST")
-        print "Sent?", resp['status'], content
         if resp.get('status') != '200':
-            print content
             raise Exception("There was an error when sending the direct message: %s" % content)
