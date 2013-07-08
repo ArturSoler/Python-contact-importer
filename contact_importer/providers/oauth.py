@@ -5,6 +5,7 @@ import urllib
 import oauth2 as oauth
 
 from .base import BaseContacts
+from ..exceptions import AccessDeniedError
 
 class OAuthContacts(BaseContacts):
     """
@@ -59,8 +60,11 @@ class OAuthContacts(BaseContacts):
             raise Exception("Invalid response %s." % resp['status'])
 
         token = dict(urlparse.parse_qsl(content))
-        self.oauth_token = token.get('oauth_token')
-        self.oauth_token_secret = token.get('oauth_token_secret')
+        try:
+            self.oauth_token = token['oauth_token']
+            self.oauth_token_secret = token['oauth_token_secret']
+        except:
+            raise AccessDeniedError()
 
         return { 'oauth_token': self.oauth_token, 'oauth_token_secret': self.oauth_token_secret }
 
@@ -84,10 +88,12 @@ class OAuthContacts(BaseContacts):
         client = oauth.Client(self.consumer, token)
         resp, content = client.request(self.access_token_url, "GET")
         res_token = dict(urlparse.parse_qsl(content))
-        self.access_token = res_token.get('oauth_token')
-        self.access_token_secret = res_token.get('oauth_token_secret')
+        try:
+            self.access_token = res_token['oauth_token']
+            self.access_token_secret = res_token['oauth_token_secret']
+        except KeyError:
+            raise AccessDeniedError()
 
     def get_contacts(self):
         if not hasattr(self, 'access_token') or not hasattr(self, 'access_token_secret'):
             self.receive_access_tokens()
-

@@ -11,6 +11,7 @@ from .providers.google import GmailContacts
 from .providers.yahoo import YahooContacts
 from .providers.hotmail import HotmailContacts
 from .providers.twitter import TwitterFollowers
+from .exceptions import AccessDeniedError
 
 providers = {
     'google': GmailContacts,
@@ -51,6 +52,8 @@ def get_contacts(view):
             params = dict(PROVIDER_CREDENTIALS.get(service_name))
             params.update(json.loads(request.session.get('contact_import_data', '[]')))
             params.update(dict([(k, v) for k, v in request.GET.items()]))
+            if 'denied' in params:
+                raise AccessDeniedError()
 
             if request.method == 'POST':
                 params['post_params'] = request.POST
