@@ -11,6 +11,8 @@ from .providers.google import GmailContacts
 from .providers.yahoo import YahooContacts
 from .providers.hotmail import HotmailContacts
 from .providers.twitter import TwitterFollowers
+from .providers.linkedin import LinkedInConnections
+
 from .exceptions import AccessDeniedError
 
 providers = {
@@ -18,6 +20,7 @@ providers = {
     'yahoo': YahooContacts,
     'hotmail': HotmailContacts,
     'twitter': TwitterFollowers,
+    'linkedin': LinkedInConnections,
 }
 
 PROVIDER_CREDENTIALS = settings.CONTACT_IMPORT_SETTINGS
