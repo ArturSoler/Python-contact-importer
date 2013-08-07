@@ -27,12 +27,15 @@ class LinkedInConnections(OAuthContacts):
         token = oauth.Token(self.access_token, self.access_token_secret)
         client = oauth.Client(self.consumer, token)
 
-        recipients = [{"person": {"_path": "/people/%s" % r }}
-                          for r in receivers]
-        request = {'recipients': {'values': recipients},
-                   'subject': subject.encode('utf-8'),
-                   'body': message.encode('utf-8')}
+        recipients_groups = [receivers[i:i+10] for i in range(0, len(receivers), 10)]
 
-        json_request = json.dumps(request)
+        for receivers in recipients_groups:
+            recipients = [{"person": {"_path": "/people/%s" % r }}
+                              for r in receivers]
+            request = {'recipients': {'values': recipients},
+                       'subject': subject.encode('utf-8'),
+                       'body': message.encode('utf-8')}
 
-        resp, content = client.request(self.send_messages_url, method="POST", body=json_request, headers={'Content-Type':'application/json'} )
+            json_request = json.dumps(request)
+
+            resp, content = client.request(self.send_messages_url, method="POST", body=json_request, headers={'Content-Type':'application/json'} )
